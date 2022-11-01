@@ -1,0 +1,6 @@
+/venv
+app/__pycache__
+app/migrations/__pycache__
+
+crud_project/__pycache__
+
