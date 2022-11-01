@@ -3,23 +3,30 @@ from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from django.views import View
 from django.contrib import messages
+
+from .forms import StudentForm
 from .models import Student 
 import re 
-from django.db.models import Q
+
 
 class HomeView(View):
     def get(self,request):
         queryset=Student.objects.all().order_by("-id")
+        form=StudentForm()
         context={
-            "obj_list":queryset
+            "obj_list":queryset,
+            'form':form
         }
+
         return render(request,"app/index.html",context)
 
     def post(self,request):
-        names=request.POST.getlist("names")
-        departments=request.POST.getlist("departments")
-        years=request.POST.getlist("years")
-        dates=request.POST.getlist("dates")
+        names=request.POST.getlist("name")
+        departments=request.POST.getlist("dept")
+        years=request.POST.getlist("admission_year")
+        dates=request.POST.getlist("admission_date")
+        user_types=request.POST.getlist("user_type")
+        employee_roles=request.POST.getlist("employee_role")
         
         count=Student.objects.count()
         m_id="AB-01"
@@ -31,7 +38,7 @@ class HomeView(View):
                 m_id="AB-0"+str(int(count)+1)
             else:
                 m_id="AB-"+str(int(count)+1)
-
+    
         if names and departments:
             for i in range(len(names)):
                 Student.objects.create(
@@ -39,7 +46,9 @@ class HomeView(View):
                     dept=departments[i],
                     m_id=m_id,
                     admission_date=dates[i],
-                    admission_year=years[i]
+                    admission_year=years[i],
+                    user_type=user_types[i],
+                    employee_role=employee_roles[i] 
                     )
             name=",".join(names)
             messages.success(request,f"{name} created successfully!!!")
@@ -63,12 +72,19 @@ class UpdateView(View):
         objs=Student.objects.filter(m_id=id) 
         json_data=[] 
         for data in objs:
+            if data.employee_role=="empty":
+                emp_role=""
+            else:
+                emp_role=data.employee_role
             json_data.append({
                 "name":data.name,
                 'dept':data.dept,
                 'pk':data.pk,
                 'year':data.admission_year,
-                'date':data.admission_date
+                'date':data.admission_date,
+                 'user_type':data.user_type,
+                 'employee_role':emp_role,
+               
             })
         
         return JsonResponse({"message":"success","data":json_data})
@@ -77,6 +93,7 @@ class UpdateView(View):
         departments=request.POST.getlist("departments")
         years=request.POST.getlist("years")
         dates=request.POST.getlist("dates")
+
         pk=request.POST.getlist("pk")
    
         if names and departments and pk:
@@ -92,27 +109,3 @@ class UpdateView(View):
         return redirect("/")
 
 
-
-
-class SearchView(View):
-    def get(self,request):
-        qry=request.GET.get("qry")
-      
-        if qry:
-            objs=Student.objects.filter(Q(name__icontains=qry) | Q(dept__iexact=qry)) 
-        else:
-            objs=Student.objects.all().order_by("-id")
-        json_data=[] 
-        for data in objs:
-            json_data.append({
-                "name":data.name,
-                'dept':data.dept,
-                'pk':data.pk,
-                'year':data.admission_year,
-                'date':data.admission_date,
-                "pk":data.pk,
-                "id":data.id,
-                "m_id":data.m_id,
-            })
-        
-        return JsonResponse({"message":"success","data":json_data})

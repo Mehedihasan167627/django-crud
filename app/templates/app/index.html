@@ -13,10 +13,10 @@
   <body>
     <div class="container mt-4">
          <div class="row">
-            <div class="col-md-9 col-sm-5  mt-4 mb-3 mx-auto">
+            <div class="col-md-12 col-sm-5  mt-4 mb-3 mx-auto">
                 <h2 style="text-align:center">CRUD OPERATION </h2>
-                <input type="search" name="" id="serachInputBox" placeholder="search here..." style="border:1px solid lightgray;outline: none;padding:5px 7px;">
-                 <span class="text-muted ml-5" id="searchItemCount">TOTAL STUDENTS ({{obj_list.count}})</span>
+ 
+                 
                 <button type="button" class="btn btn-success" style="float:right" data-toggle="modal" data-target="#createStudentModal">
                     CREATE STUDENT
                   </button>
@@ -26,7 +26,7 @@
         {% if messages %}
           {% for m in messages %} 
           <div class="row mt-2 mb-2">
-            <div class="col-md-9 col-sm-5 mx-auto">
+            <div class="col-md-12 col-sm-5 mx-auto">
                 <div class="alert alert-{{m.tags}} alert-dismissible fade show" role="alert">
                       {{m}}
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -38,7 +38,7 @@
           {% endfor %}
         {% endif %}
         <div class="row">         
-            <div class="col-md-9 col-sm-5 mx-auto">
+            <div class="col-md-12 col-sm-5 mx-auto">
                 <table class="table bordered">
                     <thead>
                       <tr>
@@ -47,7 +47,8 @@
                         <th scope="col">Departments</th>
                         <th scope="col">Admission Date</th>
                         <th scope="col">Admission Year</th>
-                      
+                        <th scope="col">User Type</th>
+                        <th scope="col">Role</th>         
                         <th scope="col">Action</th>
                       </tr>
                     </thead>
@@ -59,6 +60,15 @@
                         <td>{{obj.dept}}</td>
                         <td>{{obj.admission_date|date:"Y-m-d"}}</td>
                         <td>{{obj.admission_year}}</td>
+                        <td>{{obj.user_type}}</td>
+                        <td style="text-align:center">
+                           {% if obj.employee_role == 'empty' %}
+                           ------
+                           {% else %} 
+                           {{obj.employee_role}}
+                           {% endif %}
+
+                        </td>
                         <td>
                              <button id="{{obj.m_id}}"  class="btn viewBtn" data-toggle="modal" data-target="#updateStudentModal"><i class="fa-regular fa-eye"></i></button>
                             <button id="{{obj.id}}" class="btn deleteBtn"><i class="fa-sharp fa-solid fa-trash" style="color:red"></i></button>
@@ -79,7 +89,7 @@
   <!-- Modal -->
   <div class="modal fade" id="createStudentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <form action="" method="post">
+        <form action="" method="post" id="studentCreateForm">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">Create New Student</h5>
@@ -87,28 +97,16 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body">      
             <div  id="studentForm">
                 {% csrf_token %}
-                <div class="row mb-2">
-                    <div class="col-md-5 mb-2">
-                        <input type="text" name="names" id="" class="form-control" placeholder="Name"Required>
-                    </div>
-                    <div class="col-md-5 mb-2">
-                      <input type="text" name="departments" id="" class="form-control" placeholder="Department"Required>
-                  </div>        
-                 
-                  <div class="col-md-5 mb-2">
-                    <input type="date" name="dates" id="" class="form-control" placeholder="Admission date"Required>
-                </div> 
+            <div class="row mb-2">          
+              {% for field in form %}
                 <div class="col-md-5 mb-2">
-                 <select name="years" id="" class="form-control admission__year" required>
-                   <option value="" selected>Select Year</option>
-                 </select>
-              </div>        
-               
+                    {{field}}
                 </div>
-                    
+              {% endfor %}
+            </div>    
             </div>
             <div class="row">
               <div class="col-md-12 mb-2">
@@ -118,7 +116,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-success">save</button>
+          <button type="submit" class="btn btn-success infosaveBtn">save</button>
         </div>
       </div>
     </form>
@@ -160,10 +158,23 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  
+  <script>
+     $("input").addClass("form-control")
+     $("select").addClass("form-control")
+      $("#id_employee_role").attr({"disabled":true})
+      $("#id_employee_role").addClass("employee__role")
+
+      $("#studentCreateForm").on("submit",function(){
+          $(".employee__role").attr({"disabled":false})
+      })
+
+
+  </script>
   <script>
      var stdForm=$("#studentForm")
      var yearInput=$(".admission__year")
-
+    
     function getYear(select="") {
       var date=new Date();
       var current_year=date.getFullYear();
@@ -190,58 +201,61 @@
          <div class="row mb-2">
           <div class="col-md-12">
                 <p class="text-muted" style="font-size:10px;">-> ${data.name}</p>
-              </div>
+            </div>
                     <div class="col-md-6 mb-2">
                         <input type="text" name="names" value="${data.name}" id="" class="form-control" placeholder="Name"required>
                     </div>
                     <div class="col-md-6 mb-2">
                         <input type="text" name="departments" value="${data.dept}" id="" class="form-control" placeholder="Department"required>
                     </div>
-                    <div class="col-md-6 mb-2">
+                <div class="col-md-6 mb-2">
                     <input type="date" name="dates" id="" value="${data.date}" class="form-control" placeholder="Admission date"Required>
                 </div> 
                 <div class="col-md-6 mb-2">
                  <select name="years" id="" class="form-control admission__year" required>
                    ${getYear(data.year)}
                  </select>
-              </div> 
+              </div>  
+              <div class="col-md-6 mb-2">
+                    <input type="text" name="user_type" id="" value="${data.user_type}" class="form-control" placeholder="user type" disabled>
+                </div> 
+                <div class="col-md-6 mb-2">
+                    <input type="text" name="employee_role" id="" value="${data.employee_role}" class="form-control" placeholder="empty" disabled>
+                </div> 
                 </div>
                 <input type="hidden" name="pk" value="${data.pk}">      
-                `;
-        }else{
-          element=`  
-         <div class="row mb-2">
-          <div class="col-md-12">
-                <p>Item - ${createCount}</p>
-              </div>
-                    <div class="col-md-5 mb-2">
-                        <input type="text" name="names"  id="" class="form-control" placeholder="Name"required>
-                    </div>
-                    <div class="col-md-5 mb-2">
-                        <input type="text" name="departments"  id="" class="form-control" placeholder="Department"required>
-                    </div>  
-                    
-                    <div class="col-md-5 mb-2">
-                    <input type="date" name="dates" id="" class="form-control" placeholder="Admission date"Required>
-                </div> 
-                <div class="col-md-5 mb-2">
-                 <select name="years" id="" class="form-control admission__year" required>
-                   ${getYear()}
-                 </select>
-              </div>    
-              <div class="col-md-2 mb-2">
-                      <button type="button" class=" btn-danger removeItem" ><i class="fa-solid fa-minus "></i></button>
-                    </div>    
-                </div>
-                  
                 `;
         }
  
         return element
      }
      
+     var rowCount=1
      $("#addMoreBtn").on("click",function(){
-         stdForm.append(addElement())
+       var form=`<div class="row mb-2 increment_row_${rowCount}">  
+                <div class="col-md-12">
+                   <p class="text-muted">User - ${rowCount} :</p>
+                  </div>        
+              {% for field in form %}
+                <div class="col-md-5 mb-2">
+                    {{field}}
+                </div>
+              {% endfor %}
+              <div class="col-md-2 mb-2">
+                      <button type="button" class=" btn-danger removeItem" ><i class="fa-solid fa-minus "></i></button>
+                    </div>    
+                </div>
+              `;
+         stdForm.append(form)
+    $("input").addClass("form-control")
+     $("select").addClass("form-control")
+
+     $(".increment_row_"+rowCount+"").children().children("#id_employee_role").attr({"disabled":true})
+     $(".increment_row_"+rowCount+"").children().children("#id_employee_role").addClass("employee__role")
+     
+     rowCount+=1
+    
+
      })
 
      $(document).on("click",".removeItem",function(){
@@ -291,56 +305,27 @@
 
 
 
-  // search funtion
-  $("#serachInputBox").on("keyup",function(){
-    var showDataTable=$("#showDataTable").html("Searching...")
+    $(document).on("change","#id_user_type",function(){
+      var val=$(this).val()
+      var selectOption= $(this).parent().next().children().select().html()
+      var selectedBox=$(this).parent().next().children().select()
+          if(val=="Student"){ 
+             selectedBox.attr("disabled",true)
+             selectedBox.attr("required",false)
+             selectedBox.html(selectOption)
+             selectedBox.children().first().val("empty")
 
-     $.ajax({
-      url:"{% url 'search-student' %}",
-      method:"GET",
-      data:{qry:$(this).val()},
-      success:function(response){
-        var data=response.data
-        var len=data.length
-        var element=""
-        for(var i=0; i<len;i++){
-            element+=addTableRow(data[i])
-        }
+          }else{
+             selectedBox.attr({"disabled":false})
+             selectedBox.attr("required",true)
+             selectedBox.html(selectOption)
+             selectedBox.children().first().val("")
 
-        $("#searchItemCount").html(`STUDENTS FOUND (${len})`)
-        
-        if(len==0){
-          showDataTable.html(`<p class="text-muted mt-4">Not found</p>`)
-
-        }else{
-          showDataTable.html(element)
+          }
          
-        }
+          
+    })
 
-        
-      }
-     })
-  })
-
-
-  function addTableRow(obj) {
-    return `
-    <tr id="row__${obj.id}">
-                        <th scope="row">${obj.m_id}</th>
-                        <td>${obj.name}</td>
-                        <td>${obj.dept}</td>
-                        <td>${obj.date}</td>
-                        <td>${obj.year}</td>
-                        <td>
-                             <button id="${obj.m_id}"  class="btn viewBtn" data-toggle="modal" data-target="#updateStudentModal"><i class="fa-regular fa-eye"></i></button>
-                            <button id="${obj.id}" class="btn deleteBtn"><i class="fa-sharp fa-solid fa-trash" style="color:red"></i></button>
-                        </td>
-                      </tr>
-    `;
-    
-  }
-
-  
 
   </script> 
 </body>
