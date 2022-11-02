@@ -60,7 +60,7 @@
                     <tbody id="showDataTable">
                         {% for obj in obj_list %}
                       <tr id="row__{{obj.id}}">
-                        <th scope="row">{{obj.m_id}}</th>
+                        <th scope="row">{{obj.str_id}}</th>
                         <td>{{obj.name}}</td>
                         <td>{{obj.dept}}</td>
                         <td>{{obj.admission_date|date:"Y-m-d"}}</td>
@@ -75,7 +75,7 @@
 
                         </td>
                         <td>
-                             <button id="{{obj.m_id}}"  class="btn viewBtn" data-toggle="modal" data-target="#updateStudentModal"><i class="fa-regular fa-eye"></i></button>
+                             <button id="{{obj.str_id}}"  class="btn viewBtn" data-toggle="modal" data-target="#updateStudentModal"><i class="fa-regular fa-eye"></i></button>
                             <button id="{{obj.id}}" class="btn deleteBtn"><i class="fa-sharp fa-solid fa-trash" style="color:red"></i></button>
                         </td>
                       </tr>

@@ -30,15 +30,15 @@ class HomeView(View):
         user_types=request.POST.getlist("user_type")
         employee_roles=request.POST.getlist("employee_role")
         
-        std_queryset=Student.objects.all()
-        m_id=make_user_id(std_queryset)
+        queryset=Student.objects.all()
+        str_id=make_user_id(queryset) 
         
         if names and departments:
             for i in range(len(names)):
                 Student.objects.create(
                     name=names[i],
                     dept=departments[i],
-                    m_id=m_id,
+                    str_id=str_id,
                     admission_date=dates[i],
                     admission_year=years[i],
                     user_type=user_types[i],
@@ -63,7 +63,7 @@ class DeleteStudent(View):
 class UpdateView(View):
     def get(self,request):
         id=request.GET.get("id")
-        objs=Student.objects.filter(m_id=id) 
+        objs=Student.objects.filter(str_id=id) 
         json_data=[] 
         for data in objs:
             if data.employee_role=="empty":
@@ -79,8 +79,7 @@ class UpdateView(View):
                  'user_type':data.user_type,
                  'employee_role':emp_role,
                
-            })
-        
+            })   
         return JsonResponse({"message":"success","data":json_data})
     def post(self,request):
         names=request.POST.getlist("names")
