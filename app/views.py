@@ -4,9 +4,11 @@ from django.http import JsonResponse
 from django.views import View
 from django.contrib import messages
 
+from app.utils import make_user_id
+
 from .forms import StudentForm
 from .models import Student 
-import re 
+
 
 
 class HomeView(View):
@@ -28,17 +30,9 @@ class HomeView(View):
         user_types=request.POST.getlist("user_type")
         employee_roles=request.POST.getlist("employee_role")
         
-        count=Student.objects.count()
-        m_id="AB-01"
-        if count:
-            count=Student.objects.all().last().m_id
-            count=re.findall("\d{1,10}",count)
-            count=int("".join(count))
-            if count<9:
-                m_id="AB-0"+str(int(count)+1)
-            else:
-                m_id="AB-"+str(int(count)+1)
-    
+        std_queryset=Student.objects.all()
+        m_id=make_user_id(std_queryset)
+        
         if names and departments:
             for i in range(len(names)):
                 Student.objects.create(

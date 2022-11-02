@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>CRUD project!</title>
+    <style>
+      .hide{
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <div class="container mt-4">
@@ -102,15 +107,17 @@
                 {% csrf_token %}
             <div class="row mb-2">          
               {% for field in form %}
-                <div class="col-md-5 mb-2">
+                <div class="col-md-6 mb-2">
                     {{field}}
                 </div>
               {% endfor %}
-            </div>    
+            </div>  
             </div>
+            
             <div class="row">
               <div class="col-md-12 mb-2">
-                <button id="addMoreBtn" type="button" class=" btn-dark mr-4"  style="float:right">Add<i class="fa-solid fa-plus ml-2"></i></button>
+                <button id="addMoreBtn" type="button" class=" btn-dark "  style="float:right">Add<i class="fa-solid fa-plus ml-2"></i></button>
+                <button type="button" class=" btn-danger removeItem mr-2 hide" style="float:right;" ><i class="fa-solid fa-minus "></i></button>
               </div>
             </div>
         </div>
@@ -122,9 +129,6 @@
     </form>
     </div>
   </div>
-
-
-
 
   <div class="modal fade" id="updateStudentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -230,36 +234,36 @@
         return element
      }
      
-     var rowCount=1
+     var rowCount=2
      $("#addMoreBtn").on("click",function(){
        var form=`<div class="row mb-2 increment_row_${rowCount}">  
                 <div class="col-md-12">
                    <p class="text-muted">User - ${rowCount} :</p>
                   </div>        
               {% for field in form %}
-                <div class="col-md-5 mb-2">
+                <div class="col-md-6 mb-2">
                     {{field}}
                 </div>
-              {% endfor %}
-              <div class="col-md-2 mb-2">
-                      <button type="button" class=" btn-danger removeItem" ><i class="fa-solid fa-minus "></i></button>
-                    </div>    
+              {% endfor %}  
                 </div>
               `;
          stdForm.append(form)
     $("input").addClass("form-control")
      $("select").addClass("form-control")
+     $(".removeItem").removeClass("hide")
 
      $(".increment_row_"+rowCount+"").children().children("#id_employee_role").attr({"disabled":true})
      $(".increment_row_"+rowCount+"").children().children("#id_employee_role").addClass("employee__role")
      
      rowCount+=1
     
-
      })
 
      $(document).on("click",".removeItem",function(){
-        createCount-=1
+        rowCount-=1
+        if(rowCount==2){
+           $(this).addClass("hide")
+        }
      })
 
      $(document).on("click",".deleteBtn",function(){
@@ -299,7 +303,7 @@
     })
   
     $(document).on("click",".removeItem",function(){
-      $(this).parent().parent().remove()
+      stdForm.children().last().remove();
     })
 
 
